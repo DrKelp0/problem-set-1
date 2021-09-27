@@ -72,3 +72,5 @@ elif score_end = 1
 elif score_end = 0
     print("You are very dumb")
 
+
+
