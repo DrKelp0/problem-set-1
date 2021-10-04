@@ -14,8 +14,10 @@ if q1_ans == 7:
     score_end = score_end + 1
 else:
     print("Better luck next time.")
-    score_end = score_end + 0
-print(f"You have {score_end} questions correct so far.")
+if score_end == 1:
+    print(f"You have 1 question correct so far.")
+else:
+    print(f"You have {score_end} questions correct so far.")
 
 print("What is Obama's last name?")
 q2_ans = input()
@@ -27,8 +29,10 @@ elif q2_ans == "obama":
     score_end = score_end + 1
 else:
     print("Wrong.")
-    score_end = score_end + 0
-print(f"You have {score_end} questions correct so far.")
+if score_end == 1:
+    print(f"You have 1 question correct so far.")
+else:
+    print(f"You have {score_end} questions correct so far.")
 
 print("How many stars are on the U.S. flag?")
 q3_ans = float(input())
@@ -37,8 +41,10 @@ if q3_ans == 50:
     score_end = score_end + 1
 else:
     print("You are correctn't")
-    score_end = score_end + 0
-print(f"You have {score_end} questions correct so far.")
+if score_end == 1:
+    print(f"You have 1 question correct so far.")
+else:
+    print(f"You have {score_end} questions correct so far.")
 
 print("Answer this math question")
 print("3 + (6(11 + 1 - 4)) / 8 * 2")
@@ -48,8 +54,10 @@ if q4_ans == 15:
     score_end = score_end + 1
 else:
     print("Incorrect")
-    score_end = score_end + 0
-print(f"You have {score_end} questions correct so far.")
+if score_end == 1:
+    print(f"You have 1 question correct so far.")
+else:
+    print(f"You have {score_end} questions correct so far.")
 
 print("How do you spell pneumonoultramicroscopicsilicovolcanoconiosis")
 q5_ans = input()
@@ -58,12 +66,14 @@ if q5_ans == "pneumonoultramicroscopicsilicovolcanoconiosis" :
     score_end = score_end + 1
 else:
     print("Nice try")
-    score_end = score_end + 0
 
-print(f"You got {score_end} questions right in total")
+if score_end == 1:
+    print(f"You have 1 question correct in total.")
+else:
+    print(f"You have {score_end} questions correct in total.")
 if score_end == 5:
     print("You got 100% on this quiz!")
-    print("You are part of the 1% smartest people in the world!")
+    print("You are in the top 1% smartest people in the world!")
 elif score_end == 4:
     print("You got 80% on this quiz!")
     print("You are clearly very smart, but you could be smarter.")
