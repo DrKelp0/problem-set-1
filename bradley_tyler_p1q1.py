@@ -6,6 +6,7 @@
 
 print("Welcome to this Epic quiz")
 score_end = 0
+
 print("What is 2 + 5?")
 q1_ans = float(input())
 if q1_ans == 7:
@@ -61,17 +62,22 @@ else:
 
 print(f"You got {score_end} questions right in total")
 if score_end == 5:
+    print("You got 100% on this quiz!")
     print("You are part of the 1% smartest people in the world!")
 elif score_end == 4:
+    print("You got 80% on this quiz!")
     print("You are clearly very smart, but you could be smarter.")
 elif score_end == 3:
+    print("You got 60% on this quiz")
     print("You have some knowledge, but lack a meaningful amount.")
 elif score_end == 2:
+    print("You got 40% on this quiz")
     print("You still have a ways to go.")
 elif score_end == 1:
+    print("You got 20% on this quiz")
     print("You need lots of work.")
 elif score_end == 0:
+    print("You got 0% on this quiz")
     print("You are very dumb")
-
 
 
