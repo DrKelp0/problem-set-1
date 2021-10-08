@@ -5,6 +5,7 @@ from PIL import Image
 
 # Load the image (pumpkin)
 image = Image.open('./halloween-unsplash.jpg')
+output_image = Image.open('./halloween-unsplash.jpg')
 
 # Grab pixel information
 a_pixel = image.getpixel((0, 0))  # grab pixel (0, 0) top-left
@@ -28,5 +29,18 @@ for y in range (image_height):
     print(f"green: {pixel[1]}")
     print(f"blue: {pixel[2]}")
 
+    # grab r, g, b
+    red, green, blue = pixel
+
+    # calculate the average
+    average = int((red + green + blue) / 3)
+
+    # create a gray pixel
+    gray_pixel = (average, average, average)
+    # TODO: put that in the new image
 
 
+    # put that in the new image
+    output_image.putpixel((x, y), gray_pixel)
+
+output_image.save('grayscale.jpg')
