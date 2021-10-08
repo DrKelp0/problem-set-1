@@ -28,3 +28,5 @@ for y in range (image_height):
     print(f"green: {pixel[1]}")
     print(f"blue: {pixel[2]}")
 
+
+
