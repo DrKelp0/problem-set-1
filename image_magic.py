@@ -46,9 +46,42 @@ def to_greyscale_luma(pixel: tuple) -> tuple:
          greyscale
     """
     red, green, blue = pixel
-
     grey = int(red * 0.3 + green * 0.59 + blue * 0.11)
     return grey, grey, grey
+
+def brighter(pixel: tuple, magnitude: int) -> tuple:
+    """Increases the brightness of a pixel
+
+    Args:
+        pixel: a 3- tuple of (red, green, blue)
+            subpixels
+        magnitude: an int rom 0-255 that
+            indicates how much it increases
+
+    Returns:
+        a 3-tuple representing a brighter pixel
+    """
+    # break down the pixel
+    red = pixel[0]
+    green = pixel[1]
+    blue = pixel[2]
+
+    MAX = 255
+    # increase the value by some number
+    if red + magnitude > MAX:
+        red = MAX
+    else:
+        red += MAX
+    if green + magnitude > MAX:
+        green = MAX
+    else:
+        green += MAX
+    if blue + magnitude > MAX:
+        blue = MAX
+    else:
+        blue += MAX
+    # return it
+    return red, green, blue
 
 
 # Load the image (pumpkin)
@@ -78,9 +111,9 @@ for y in range (image_height):
     # print(f"blue: {pixel[2]}")
 
 
-    grey_pixel = to_greyscale(pixel, "luma")
+    brighterer_pixel = brighterer_pixel(0, 50)
 
     # put that in the new image
     output_image.putpixel((x, y), grey_pixel)
 
-output_image.save('grayscale_luma2.jpg')
+output_image.save('brighterer.jpg')
