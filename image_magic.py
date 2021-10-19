@@ -49,13 +49,13 @@ def to_greyscale_luma(pixel: tuple) -> tuple:
     grey = int(red * 0.3 + green * 0.59 + blue * 0.11)
     return grey, grey, grey
 
-def brighter(pixel: tuple, magnitude: int) -> tuple:
+def brightness(pixel: tuple, magnitude: int) -> tuple:
     """Increases the brightness of a pixel
 
     Args:
         pixel: a 3- tuple of (red, green, blue)
             subpixels
-        magnitude: an int rom 0-255 that
+        magnitude: an int rom -255 to +255 that
             indicates how much it increases
 
     Returns:
@@ -67,53 +67,31 @@ def brighter(pixel: tuple, magnitude: int) -> tuple:
     blue = pixel[2]
 
     MAX = 255
-    # increase the value by some number
+    MIN = 0
+
+    # add the magnitude to the r, g, b values
     if red + magnitude > MAX:
         red = MAX
+    elif red + magnitude < MIN:
+        red = MIN
     else:
-        red += MAX
+        red += magnitude
+
     if green + magnitude > MAX:
         green = MAX
+    elif green + magnitude < MIN:
+        green = MIN
     else:
-        green += MAX
+        green += magnitude
+
     if blue + magnitude > MAX:
         blue = MAX
+    elif blue + magnitude < MIN:
+        blue = MIN
     else:
-        blue += MAX
+        blue += magnitude
+
     # return it
     return red, green, blue
 
 
-# Load the image (pumpkin)
-image = Image.open('./halloween-unsplash.jpg')
-output_image = Image.open('./halloween-unsplash.jpg')
-
-# Grab pixel information
-a_pixel = image.getpixel((0, 0))  # grab pixel (0, 0) top-left
-
-print(a_pixel)
-
-# Iterate over EVERY PIXEL
-image_width = image.width
-image_height = image.height
-
-# Top to bottom
-for y in range (image_height):
-    # Left to right
-    for x in range(image_width):
-        # Grab pixel information for THIS pixel
-        pixel = image.getpixel((x, y))
-
-        # print(f"\nPixel Location: {x}, {y}")
-    # Print pixel values
-    # print(f"red: {pixel[0]}")
-    # print(f"green: {pixel[1]}")
-    # print(f"blue: {pixel[2]}")
-
-
-    brighterer_pixel = brighterer_pixel(0, 50)
-
-    # put that in the new image
-    output_image.putpixel((x, y), grey_pixel)
-
-output_image.save('brighterer.jpg')
