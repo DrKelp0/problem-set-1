@@ -14,12 +14,13 @@ class Vehicle:
     """
 
     def __init__(self):
-        self.name = Tonymobile
+        self.name = "Tonymobile"
         self.max_speed = 300
         self.capacity = 100
 
-    for max_speed in range(300):
-        print("vroom")
+    def vroom(self):
+        for max_speed in range(300):
+            print("vroom")
 
 class Bus(Vehicle):
     """A vehicle that is very large and carries
@@ -29,6 +30,8 @@ class Bus(Vehicle):
         fare: Cost of riding the bus
     """
 
-    def __init__(self, age: float) -> None
+    # def __init__(self, age: float) -> None
 
 
+this_car = Vehicle()
+this_car.vroom()
