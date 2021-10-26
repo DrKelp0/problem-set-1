@@ -32,20 +32,19 @@ class Bus(Vehicle):
     def fare(self, age: float) -> None:
 
         if age <= 17:
-            fare = 0
+            print("The fare of the bus ride is $0")
 
-        elif 18 >= age <= 60:
-            fare = 5
+        elif age >= 18 and age <= 60:
+            print("The fare of the bus ride is $5")
 
         elif age > 60:
-            fare = 0
-
-        return fare
+            print("The fare of the bus ride is $0")
 
 
 this_car = Vehicle()
 # this_car.vroom()
 
 this_car = Bus()
-print(f"The fare of the bus ride is ${this_car.fare(12)}")
+this_car.fare(60)
+# print(f"The fare of the bus ride is ${this_car.fare(12)}")
 
