@@ -14,6 +14,8 @@ MAX_HUNGER = 50
 
 ENDGAME_REASONS = {
     "LOSE_AGENTS": 1,
+    "LOSE_FUEL": 2,
+    "LOSE_HUNGER": 3,
 }
 
 
@@ -80,7 +82,6 @@ class Game:
                 self.amount_tofu -=1
                 # Decrease hunger to 0
                 self.hunger = 0
-                # TODO: Add text to midnight_rider_text.py
                 print(midnight_rider_text.EAT_TOFU)
             else:
                 # Tell the player they don't have tofu
@@ -138,7 +139,6 @@ class Game:
 
     def upkeep(self) -> None:
         """Give the user reminders of hunger"""
-        # TODO: update midnight_rider_text.py
         if self.hunger > 40:
             print(midnight_rider_text.SEVERE_HUNGER)
             time.sleep(1)
@@ -149,14 +149,21 @@ class Game:
     def check_endgame(self) -> None:
         """Check to see if win/lose conditions are met
         If they're met, change the self.done flag"""
-        # TODO: LOSE - Agents catch up to the player
         if self.agents_distance >= 0:
             # Allows us to quit the while loop
             self.done = True
             # Helps with printing the right ending
-            self.endgame_reason = ENDGAME_REASONS["LOSE_AGENTS"] # TODO
-        # TODO: LOSE - Fuel runs out
-        # TODO: LOSE - Perish because of hunger
+            self.endgame_reason = ENDGAME_REASONS["LOSE_AGENTS"]
+
+        if self.fuel <= 0:
+            self.done = True
+
+            self.endgame_reason = ENDGAME_REASONS["LOSE_FUEL"]
+
+        if self.hunger >= 50:
+            self.done = True
+
+            self.endgame_reason = ENDGAME_REASONS["LOSE_HUNGER"]
         # TODO: WIN - Reach the goal
 
 
