@@ -13,9 +13,10 @@ RED   = (255,   0,   0)
 GREEN = (  0, 255,   0)
 BLUE  = (  0,   0, 255)
 BGCOLOUR = (100, 100, 255)
-
-SCREEN_WIDTH  = 800
-SCREEN_HEIGHT = 600
+# 800
+# 600
+SCREEN_WIDTH  = 407
+SCREEN_HEIGHT = 295
 SCREEN_SIZE   = (SCREEN_WIDTH, SCREEN_HEIGHT)
 WINDOW_TITLE  = "<<DVD Screen Saver>>"
 
@@ -27,14 +28,18 @@ class Dvdimage:
         x, y: coordinates of top-left corner
         width: width of our rectangle in px
         height: height of our rectangle in px
+        img: visual representation of our Dvdimage
         colour: 3-tuple of (r, g, b)
         x-vel: velocity in px/sec
+        y-vel: velocity in px/sec
     """
     def __init__(self):
         self.x, self.y = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-        self.width = 150
-        self.height = 90
+        self.width = 180
+        self.height = 180
         self.colour = BLACK
+        self.img = pygame.image.load("./images/dvdimage.png")
+        self.imgJ = pygame.image.load("./images/Jimmy.png")
         self.x_vel = 5
         self.y_vel = 3
 
@@ -47,8 +52,33 @@ class Dvdimage:
         """Updates the Dvdimage with every tick"""
         # Update the x coordinate
         self.x += self.x_vel
+        # if Dvdimage is too far to the left
+        if self.x < 0:
+            # Keep the object inside the canvas
+            self.x = 0
+            # Set the velocity to negative
+            self.x_vel = -self.x_vel
+
+        # if Dvdimage is too far to the right
+        if self.x + self.width > SCREEN_WIDTH:
+            # Keep the object inside the canvas
+            self.x = SCREEN_WIDTH - self.width
+            # Set the velocity to negative
+            self.x_vel = -self.x_vel
+
         # Update the y coordinate
+        # If Dvdimage is too low
         self.y += self.y_vel
+        if self.y + self.height > SCREEN_HEIGHT:
+            self.y = SCREEN_HEIGHT - self.height
+            self.y_vel = -self.y_vel
+
+        # If Dvdimage is too high
+        if self.y < 0:
+            # Keep the object inside the canvas
+            self.y = 0
+            # Set the velocity to negative
+            self.y_vel = -self.y_vel
 
 
 def main() -> None:
@@ -76,8 +106,10 @@ def main() -> None:
         # ----------- DRAW THE ENVIRONMENT
         screen.fill(BGCOLOUR)      # fill with bgcolor
 
-        # TODO: Draw our dvdimage
-        pygame.draw.rect(screen, dvd_image.colour, dvd_image.rect()) # TODO: method
+        # .blit(<surface/image>, coords)
+        screen.blit(dvd_image.imgJ, (dvd_image.x, dvd_image.y))
+        screen.blit(dvd_image.img, (dvd_image.x, dvd_image.y))
+
 
         # Update the screen
         pygame.display.flip()
