@@ -40,6 +40,10 @@ def main() -> None:
 
         # ------------ DRAW THE ENVIRONMENT
         screen.fill(WHITE)      # fill with bgcolor
+        # pygame.draw.rect(screen, RED, [385, 250, 85, 200])
+        #
+        # pygame.draw.circle(screen, BLUE, [500, 200], 90)
+        # pygame.draw.circle(screen, BLUE, [350, 200], 90)
 
         # Update the screen
         pygame.display.flip()
