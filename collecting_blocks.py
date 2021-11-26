@@ -35,7 +35,8 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         # Create the image of the block
-        self.image = pygame.image.load("./images/sprite_cranberry.png")
+        self.image = pygame.Surface([20, 15])
+        self.image.fill(RED)
 
         # Based on the image, create a Rect for the block
         self.rect = self.image.get_rect()
@@ -62,13 +63,58 @@ class Block (pygame.sprite.Sprite):
 
 
         # Create the image of the block
-        self.image = pygame.Surface([width, height])
-        self.image.fill(RED)
+        self.image = pygame.image.load("./images/sprite_cranberry.png")
+        # Resize the image (scale)
+        self.image = pygame.transform.scale(self.image, (24, 39))
 
-        # Based on the image, create a Rect for the block
         self.rect = self.image.get_rect()
 
+class Enemy(pygame.sprite.Sprite):
+    """The enemy sprites
 
+    Attributes:
+        image: Surface that is the visual representation
+        rect: Rect (x, y, width, height)
+    """
+    def __init__(self):
+        super().__init__()
+
+        self.image = pygame.image.load("./images/bowser.png")
+        # Resize the image (scale)
+        self.image = pygame.transform.scale(self.image, (41, 48))
+
+        self.rect = self.image.get_rect()
+        # Define the initial location
+        self.rect.x, self.rect.y = (
+            random.randrange(SCREEN_WIDTH),
+            random.randrange(SCREEN_HEIGHT)
+        )
+
+        # Define the initial velocity
+        self.x_vel = random.choice([-4, -3, 3, -4])
+        self.y_vel = random.choice([-4, -3, 3, -4])
+
+    def update(self) -> None:
+        """Calculate movement"""
+        self.rect.x += self.x_vel
+        self.rect.y += self.y_vel
+
+        # Constrain movement
+        # X -
+        if self.rect.left < 0:
+            self.rect.x = 0
+            self.x_vel = -self.x_vel    # bounce
+
+        if self.rect.right > SCREEN_WIDTH:
+            self.rect.right > SCREEN_WIDTH
+            self.x_vel = -self.x_vel    # bounce
+        # y -
+        if self.rect.y < 0:
+            self.rect.y = 0
+            self.y_vel = -self.y_vel    # bounce
+        if self.rect.bottom > SCREEN_HEIGHT:
+            self.rect.bottom > SCREEN_HEIGHT
+            self.y_vel = -self.y_vel    # bounce
 
 def main() -> None:
     """Driver of the Python script"""
@@ -79,14 +125,16 @@ def main() -> None:
     # Create some local variables that describe the environment
     done = False
     clock = pygame.time.Clock()
-    num_blocks = 100
+    num_blocks = 50
     score = 0
+    num_enemies = 10
 
     pygame.mouse.set_visible(False)
 
     # Create groups to hold sprites
     all_sprites = pygame.sprite.Group()
     blocks_sprites = pygame.sprite.Group()
+    enemy_sprites = pygame.sprite.Group()
 
     # Create all the block sprites and add to block_sprites
     for i in range(num_blocks):
@@ -102,6 +150,19 @@ def main() -> None:
     # Add the block to the all_sprites Group
         blocks_sprites.add(block)
         all_sprites.add(block)
+
+    # Create enemy sprites
+    for i in range(num_enemies):
+        enemy = Enemy()
+
+    # Set a  random location for the enemy inside the screen
+        enemy.rect.x = random.randrange(SCREEN_WIDTH - enemy.rect.width)
+        enemy.rect.y = random.randrange(SCREEN_HEIGHT - enemy.rect.height)
+
+    # Add the enemy to the enemy_sprites Group
+    # Add the enemy to the all_sprites Group
+        enemy_sprites.add(enemy)
+        all_sprites.add(enemy)
 
     # Create the Player block
     player = Player()
@@ -119,6 +180,9 @@ def main() -> None:
         # Process player movement based on mouse pos
         mouse_pos = pygame.mouse.get_pos()
         player.rect.x, player.rect.y = mouse_pos
+
+        # Update the location of all the sprites
+        all_sprites.update()
 
         # Check all collisions between player and blocks
         blocks_collided = pygame.sprite.spritecollide(player, blocks_sprites, True)
