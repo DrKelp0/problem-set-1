@@ -3,6 +3,7 @@
 
 
 import random
+import time
 import pygame
 import pygame.sprite
 
@@ -35,10 +36,11 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         # Create the image of the block
-        self.image = pygame.Surface([20, 15])
-        self.image.fill(RED)
+        self.image = pygame.image.load("./images/charizard.png")
 
-        # Based on the image, create a Rect for the block
+        # Resize the image (scale)
+        self.image = pygame.transform.scale(self.image, (42, 42))
+
         self.rect = self.image.get_rect()
 
 class Block (pygame.sprite.Sprite):
@@ -128,6 +130,10 @@ def main() -> None:
     num_blocks = 50
     score = 0
     num_enemies = 10
+    time_start = time.time()
+    time_invincible = 5
+
+    font = pygame.font.SysFont("Georgia", 25)
 
     pygame.mouse.set_visible(False)
 
@@ -191,11 +197,33 @@ def main() -> None:
             score += 1
             print(f"Score: {score}")
 
+        # Check all collisions between player and enemies
+        enemy_collided = pygame.sprite.spritecollide(player, enemy_sprites, True)
+
+        # Set a time for invincibility at start of game
+        if time.time() - time_start > time_invincible:
+            for enemy in enemy_collided:
+                done = True
+                print("GAME OVER")
+
+        # Make win screen
+        if score >= 50:
+            done = True
+            print(f"You got {score} points!")
+            print(f"YOU WIN!")
+
+
         # ----------- DRAW THE ENVIRONMENT
         screen.fill(BGCOLOUR)      # fill with bgcolor
 
         # Draw all sprites
         all_sprites.draw(screen)
+
+        # Draw the score on the screen
+        screen.blit(
+            font.render(f"Score: {score}", True, BLACK),
+            (5, 5)
+        )
 
         # Update the screen
         pygame.display.flip()
