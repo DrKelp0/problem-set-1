@@ -30,6 +30,8 @@ class Player(pygame.sprite.Sprite):
             representation of or Block
         rect: numerical representation of
             our Block [x, y, width, height]
+        hp: describe how much health our
+        player has
     """
     def __init__(self) -> None:
         # Call the superclass constructor
@@ -42,6 +44,13 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (42, 42))
 
         self.rect = self.image.get_rect()
+
+        # Initial health points
+        self.hp = 100
+
+    def hp_remaining(self) -> int:
+        """Return the percent of health remaining"""
+        return self.hp/ 100
 
 class Block (pygame.sprite.Sprite):
     """Describes a block object
@@ -195,16 +204,18 @@ def main() -> None:
 
         for block in blocks_collided:
             score += 1
-            print(f"Score: {score}")
 
         # Check all collisions between player and enemies
-        enemy_collided = pygame.sprite.spritecollide(player, enemy_sprites, True)
+        enemy_collided = pygame.sprite.spritecollide(player, enemy_sprites, False)
 
         # Set a time for invincibility at start of game
         if time.time() - time_start > time_invincible:
             for enemy in enemy_collided:
-                done = True
-                print("GAME OVER")
+                player.hp -= 1
+                print(player.hp) # debugging
+
+        if player.hp <= 0:
+            done = True
 
         # Make win screen
         if score >= 50:
@@ -224,6 +235,14 @@ def main() -> None:
             font.render(f"Score: {score}", True, BLACK),
             (5, 5)
         )
+
+        # Draw a health bar
+
+        # Draw the background rectangle
+        pygame.draw.rect(screen, GREEN, [580, 5, 215, 20])
+        # Draw the foreground rectangle which represents the remaining health
+        life_remaining = 215 - int(215 * player.hp_remaining())
+        pygame.draw.rect(screen, BLACK, [580, 5, life_remaining, 20])
 
         # Update the screen
         pygame.display.flip()
