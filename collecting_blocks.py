@@ -200,10 +200,16 @@ def main() -> None:
         all_sprites.update()
 
         # Check all collisions between player and blocks
-        blocks_collided = pygame.sprite.spritecollide(player, blocks_sprites, True)
 
-        for block in blocks_collided:
-            score += 1
+        if time.time() - time_start > time_invincible:
+            blocks_collided = pygame.sprite.spritecollide(player, blocks_sprites, True)
+            for block in blocks_collided:
+                score += 1
+
+        elif time.time() - time_start < time_invincible:
+            blocks_collided = pygame.sprite.spritecollide(player, blocks_sprites, False)
+            for block in blocks_collided:
+                score += 0
 
         # Check all collisions between player and enemies
         enemy_collided = pygame.sprite.spritecollide(player, enemy_sprites, False)
