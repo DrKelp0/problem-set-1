@@ -136,11 +136,19 @@ def main() -> None:
     # Create some local variables that describe the environment
     done = False
     clock = pygame.time.Clock()
-    num_blocks = 50
+    num_blocks = 75
     score = 0
     num_enemies = 10
     time_start = time.time()
-    time_invincible = 5
+    time_invincible = 3
+    game_state = "running"
+    endgame_cooldown = 5
+    time_ended = 0.0
+
+    endgame_messages = {
+        "win": "Congratulations, you won!",
+        "lose": "Sorry, they got you. Play again!"
+    }
 
     font = pygame.font.SysFont("Georgia", 25)
 
@@ -191,6 +199,25 @@ def main() -> None:
             if event.type == pygame.QUIT:
                 done = True
 
+        # End-game listener
+        # WIN CONDITION - Collect 100 blocks
+        if score == num_blocks:
+            # Indicate to draw a message
+            game_state = "won"
+
+            # SET THE TIME THAT THE GAME HAS WON
+            if time_ended == 0:
+                time_ended = time.time()
+
+
+            # Set parameters tp keep the screen alive
+            # Wait 4 seconds to kill the screen
+            if time.time() - time._ended >= endgame_cooldown:
+                done = True
+
+        # LOSE CONDITION - Player hp goes below 0
+        if player.hp_remaining() <= 0:
+            done = True
         # ----------- CHANGE ENVIRONMENT
         # Process player movement based on mouse pos
         mouse_pos = pygame.mouse.get_pos()
@@ -220,16 +247,6 @@ def main() -> None:
                 player.hp -= 1
                 print(player.hp) # debugging
 
-        if player.hp <= 0:
-            done = True
-
-        # Make win screen
-        if score >= 50:
-            done = True
-            print(f"You got {score} points!")
-            print(f"YOU WIN!")
-
-
         # ----------- DRAW THE ENVIRONMENT
         screen.fill(BGCOLOUR)      # fill with bgcolor
 
@@ -243,12 +260,18 @@ def main() -> None:
         )
 
         # Draw a health bar
-
         # Draw the background rectangle
         pygame.draw.rect(screen, GREEN, [580, 5, 215, 20])
         # Draw the foreground rectangle which represents the remaining health
         life_remaining = 215 - int(215 * player.hp_remaining())
         pygame.draw.rect(screen, BLACK, [580, 5, life_remaining, 20])
+
+        # If we've won, draw the text on the screen
+        if game_state == "won":
+            screen.blit(
+                font.render(endgame_messages["win"], True, BLACK),
+                (SCREEN_WIDTH / 3, SCREEN_HEIGHT / 2)
+            )
 
         # Update the screen
         pygame.display.flip()
