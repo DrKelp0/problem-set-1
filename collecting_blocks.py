@@ -212,7 +212,7 @@ def main() -> None:
 
             # Set parameters tp keep the screen alive
             # Wait 4 seconds to kill the screen
-            if time.time() - time._ended >= endgame_cooldown:
+            if time.time() - time_ended >= endgame_cooldown:
                 done = True
 
         # LOSE CONDITION - Player hp goes below 0
