@@ -1,7 +1,7 @@
 # Pygame Boilerplate
 # Author: Tyler
 
-
+import threading
 import random
 import time
 import pygame
@@ -50,7 +50,7 @@ class Player(pygame.sprite.Sprite):
 
     def hp_remaining(self) -> int:
         """Return the percent of health remaining"""
-        return self.hp/ 100
+        return self.hp / 100
 
 class Block (pygame.sprite.Sprite):
     """Describes a block object
@@ -136,14 +136,15 @@ def main() -> None:
     # Create some local variables that describe the environment
     done = False
     clock = pygame.time.Clock()
-    num_blocks = 75
+    num_blocks = 5
     score = 0
     num_enemies = 10
     time_start = time.time()
     time_invincible = 3
     game_state = "running"
-    endgame_cooldown = 5
     time_ended = 0.0
+
+
 
     endgame_messages = {
         "win": "Congratulations, you won!",
@@ -209,11 +210,12 @@ def main() -> None:
             if time_ended == 0:
                 time_ended = time.time()
 
-
             # Set parameters tp keep the screen alive
+
+
             # Wait 4 seconds to kill the screen
-            if time.time() - time_ended >= endgame_cooldown:
-                done = True
+            # if game_state == "won":
+
 
         # LOSE CONDITION - Player hp goes below 0
         if player.hp_remaining() <= 0:
@@ -223,8 +225,10 @@ def main() -> None:
         mouse_pos = pygame.mouse.get_pos()
         player.rect.x, player.rect.y = mouse_pos
 
-        # Update the location of all the sprites
-        all_sprites.update()
+        # Update the location of all the sprites (blocks, player)
+        if game_state == 'running':
+            enemy_sprites.update()
+        player.update()
 
         # Check all collisions between player and blocks
 
@@ -243,9 +247,17 @@ def main() -> None:
 
         # Set a time for invincibility at start of game
         if time.time() - time_start > time_invincible:
+            if game_state == "running":
+                for enemy in enemy_collided:
+                    player.hp -= 1
+                    print(player.hp) # debugging
+
+        elif game_state == "won":
             for enemy in enemy_collided:
-                player.hp -= 1
-                print(player.hp) # debugging
+                player.hp - 0
+
+
+
 
         # ----------- DRAW THE ENVIRONMENT
         screen.fill(BGCOLOUR)      # fill with bgcolor
@@ -270,6 +282,11 @@ def main() -> None:
         if game_state == "won":
             screen.blit(
                 font.render(endgame_messages["win"], True, BLACK),
+                (SCREEN_WIDTH / 3, SCREEN_HEIGHT / 2)
+            )
+        if game_state == "lose":
+            screen.blit(
+                font.render(endgame_messages["lose"], True, BLACK),
                 (SCREEN_WIDTH / 3, SCREEN_HEIGHT / 2)
             )
 
