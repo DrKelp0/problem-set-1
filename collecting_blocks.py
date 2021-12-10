@@ -1,7 +1,7 @@
 # Pygame Boilerplate
 # Author: Tyler
 
-import threading
+
 import random
 import time
 import pygame
@@ -142,9 +142,8 @@ def main() -> None:
     time_start = time.time()
     time_invincible = 3
     game_state = "running"
-    time_ended = 0.0
-
-
+    time_ended = 0
+    time_cooldown = 5
 
     endgame_messages = {
         "win": "Congratulations, you won!",
@@ -206,16 +205,19 @@ def main() -> None:
             # Indicate to draw a message
             game_state = "won"
 
-            # SET THE TIME THAT THE GAME HAS WON
             if time_ended == 0:
                 time_ended = time.time()
 
+            # SET THE TIME THAT THE GAME HAS WON
             # Set parameters tp keep the screen alive
-
-
             # Wait 4 seconds to kill the screen
-            # if game_state == "won":
-
+        if game_state == "won":
+            if time_ended > 0 and time.time() - time_ended > time_cooldown:
+                done = True
+                print("hello")
+            #
+            # elif time.time() - time_ended < time_cooldown:
+            #     done = False
 
         # LOSE CONDITION - Player hp goes below 0
         if player.hp_remaining() <= 0:
@@ -231,6 +233,7 @@ def main() -> None:
         player.update()
 
         # Check all collisions between player and blocks
+
 
         if time.time() - time_start > time_invincible:
             blocks_collided = pygame.sprite.spritecollide(player, blocks_sprites, True)
@@ -250,7 +253,7 @@ def main() -> None:
             if game_state == "running":
                 for enemy in enemy_collided:
                     player.hp -= 1
-                    print(player.hp) # debugging
+                    print(player.hp)  # debugging
 
         elif game_state == "won":
             for enemy in enemy_collided:
