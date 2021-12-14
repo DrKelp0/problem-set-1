@@ -10,16 +10,17 @@ import pygame.sprite
 pygame.init()
 
 WHITE = (255, 255, 255)
-BLACK = (0,   0,   0)
-RED = (255,   0,   0)
-GREEN = (  0, 255,   0)
-BLUE = (0,   0, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
 BGCOLOUR = (100, 100, 255)
 
-SCREEN_WIDTH  = 800
+SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-SCREEN_SIZE   = (SCREEN_WIDTH, SCREEN_HEIGHT)
-WINDOW_TITLE  = "<<Collecting Blocks>>"
+SCREEN_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
+WINDOW_TITLE = "<<Collecting Blocks>>"
+
 
 class Player(pygame.sprite.Sprite):
     """Describes a player object
@@ -33,6 +34,7 @@ class Player(pygame.sprite.Sprite):
         hp: describe how much health our
         player has
     """
+
     def __init__(self) -> None:
         # Call the superclass constructor
         super().__init__()
@@ -52,6 +54,7 @@ class Player(pygame.sprite.Sprite):
         """Return the percent of health remaining"""
         return self.hp / 100
 
+
 class Enemy(pygame.sprite.Sprite):
     """The enemy sprites
 
@@ -59,6 +62,7 @@ class Enemy(pygame.sprite.Sprite):
         image: Surface that is the visual representation
         rect: Rect (x, y, width, height)
     """
+
     def __init__(self):
         super().__init__()
 
@@ -86,18 +90,19 @@ class Enemy(pygame.sprite.Sprite):
         # X -
         if self.rect.left < 0:
             self.rect.x = 0
-            self.x_vel = -self.x_vel    # bounce
+            self.x_vel = -self.x_vel  # bounce
 
         if self.rect.right > SCREEN_WIDTH:
             self.rect.right > SCREEN_WIDTH
-            self.x_vel = -self.x_vel    # bounce
+            self.x_vel = -self.x_vel  # bounce
         # y -
         if self.rect.y < 0:
             self.rect.y = 0
-            self.y_vel = -self.y_vel    # bounce
+            self.y_vel = -self.y_vel  # bounce
         if self.rect.bottom > SCREEN_HEIGHT:
             self.rect.bottom > SCREEN_HEIGHT
-            self.y_vel = -self.y_vel    # bounce
+            self.y_vel = -self.y_vel  # bounce
+
 
 class Bullet(pygame.sprite.Sprite):
     """Bullet
@@ -107,6 +112,7 @@ class Bullet(pygame.sprite.Sprite):
         rect: mathematical representation
         vel_y: y velocity in px/sec
         """
+
     def __init__(self, coords: tuple):
         """
 
@@ -127,6 +133,36 @@ class Bullet(pygame.sprite.Sprite):
     def update(self):
         self.rect.y -= self.vel_y
 
+class Superbullet(pygame.sprite.Sprite):
+    """Superbullet
+
+    Attributes:
+        image: visual representation
+        rect: mathematical representation
+        vel_y: y velocity in px/sec
+        """
+
+    def __init__(self, coords: tuple):
+        """
+
+        Arguments:
+             coords: tuple of (x, y) to represent initial location
+        """
+        super().__init__()
+
+        self.image = pygame.Surface((8, 20))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+
+        # Set the middle of the bullet to be at coords
+        self.rect.center = coords
+
+        self.vel_y = 4
+
+    def update(self):
+        self.rect.y -= self.vel_y
+
+
 def main() -> None:
     """Driver of the Python script"""
     # Create the screen
@@ -143,9 +179,11 @@ def main() -> None:
     game_state = "running"
     time_ended = time.time()
     time_cooldown = 4
-    respawn_level = 0
-    text_cooldown = 4
-    round_cooldown = 8
+    super_bulletnumber = 1
+
+    # Check for high score
+    with open("./data/shootemup_highscore.txt") as f:
+        high_score = int(f.readline().strip())
 
     endgame_messages = {
         "win": "Congratulations, you won!",
@@ -161,19 +199,6 @@ def main() -> None:
     enemy_sprites = pygame.sprite.Group()
     bullet_sprites = pygame.sprite.Group()
 
-    # Create enemy sprites
-    for i in range(num_enemies):
-        enemy = Enemy()
-
-    # Set a  random location for the enemy inside the screen
-        enemy.rect.x = random.randrange(SCREEN_WIDTH - enemy.rect.width)
-        enemy.rect.y = random.randrange(SCREEN_HEIGHT - enemy.rect.height)
-
-    # Add the enemy to the enemy_sprites Group
-    # Add the enemy to the all_sprites Group
-        enemy_sprites.add(enemy)
-        all_sprites.add(enemy)
-
     # Create the Player block
     player = Player()
     # Add the player to all sprites group
@@ -188,11 +213,17 @@ def main() -> None:
             if event.type == pygame.MOUSEBUTTONUP:
                 if len(bullet_sprites) < 3 and time.time() - time_start > time_invincible:
                     bullet = Bullet(player.rect.midtop)
-
                     # Add it to the allsprites group
                     all_sprites.add(bullet)
                     bullet_sprites.add(bullet)
 
+        if pygame.key.get_pressed([pygame.K_SPACE]):
+            # Do something for the keyboard
+            if len(super_bullet) < 1 and time.time() - time.start > time_invincible:
+                super_bullet = Superbullet(player.rect.midtop)
+                all_sprites.add(bullet)
+                super_bullet.add(bullet)
+            pass
 
         # LOSE CONDITION - Player hp goes below 0
         if player.hp_remaining() <= 0:
@@ -201,6 +232,26 @@ def main() -> None:
         # Process player movement based on mouse pos
         mouse_pos = pygame.mouse.get_pos()
         player.rect.x, player.rect.y = mouse_pos
+
+        # Check nu,ber of enemies currently on the screen
+        if len(enemy_sprites) < 1:
+            # Create enemy sprites
+            for i in range(num_enemies):
+                enemy = Enemy()
+
+                # Set a  random location for the enemy inside the screen
+                enemy.rect.x = random.randrange(SCREEN_WIDTH - enemy.rect.width)
+                enemy.rect.y = random.randrange(SCREEN_HEIGHT - enemy.rect.height)
+
+                # Add the enemy to the enemy_sprites Group
+                # Add the enemy to the all_sprites Group
+                enemy_sprites.add(enemy)
+                all_sprites.add(enemy)
+
+            num_enemies += 5
+            if player.hp <= 80:
+                player.hp += 20
+            super_bulletnumber += 1
 
         # Update the location of all the sprites (blocks, player)
         if game_state == 'running':
@@ -216,7 +267,7 @@ def main() -> None:
             if game_state == "running":
                 for enemy in enemy_collided:
                     player.hp -= 1
-                    print(player.hp) # debugging
+                    print(player.hp)  # debugging
 
         elif game_state == "won":
             for enemy in enemy_collided:
@@ -239,8 +290,22 @@ def main() -> None:
             if bullet.rect.y < 0:
                 bullet.kill()
 
+        for super_bullet in bullet_sprites:
+            enemies_bullet_collided = pygame.sprite.spritecollide(
+                super_bullet,
+                enemy_sprites,
+                True
+            )
+
+            # If the bullet has struck some enemy
+            if enemies_bullet_collided:
+                score += 1
+
+            if bullet.rect.y < 0:
+                bullet.kill()
+
         # ----------- DRAW THE ENVIRONMENT
-        screen.fill(BGCOLOUR)      # fill with bgcolor
+        screen.fill(BGCOLOUR)  # fill with bgcolor
 
         # Draw all sprites
         all_sprites.draw(screen)
@@ -250,23 +315,11 @@ def main() -> None:
             font.render(f"Score: {score}", True, BLACK),
             (5, 5)
         )
-
-        # Make enemy respawns
-        if score == num_enemies:
-            respawn_level += 1
-            # if player.hp_remaining <= 80:
-            #     player.hp_remaining += 20
-            screen.blit(
-            font.render(f"You killed them all!", True, BLACK),
-            (5, 5)
-            )
-            screen.blit(
-            font.render(f"Round {respawn_level}", True, BLACK),
-            (5, 10)
-            )
-            num_enemies += 15 + respawn_level
-
-
+        # Draw the high score on the screen
+        screen.blit(
+            font.render(f"High Score: {high_score}", True, BLACK),
+            (5, 30)
+        )
 
         # Draw a health bar
         # Draw the background rectangle
@@ -292,6 +345,15 @@ def main() -> None:
 
         # ----------- CLOCK TICK
         clock.tick(75)
+
+    # Clean-up
+
+    # Update the high score if the current score is the highest
+    with open("./data/shootemup_highscore.txt", "w") as f:
+        if score > high_score:
+            f.write(str(score))
+        else:
+            f.write(str(high_score))
 
 
 if __name__ == "__main__":
