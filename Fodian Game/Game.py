@@ -106,7 +106,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.change_y += .35
 
-        # See if we are on the ground.
+        # # See if we are on the ground
         # if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
         #     self.change_y = 0
         #     self.rect.y = SCREEN_HEIGHT - self.rect.height
@@ -152,7 +152,6 @@ class Platform(pygame.sprite.Sprite):
         self.image.fill(GREEN)
 
         self.rect = self.image.get_rect()
-
 
 class Level():
     """ This is a generic super-class used to define a level.
@@ -200,7 +199,7 @@ class Level():
             enemy.rect.y += shift_y
 
 
-# Create platforms for the level
+# Create objects for the level
 class Level_01(Level):
     """ Definition for level 1. """
 
@@ -220,11 +219,16 @@ class Level_01(Level):
                  [50, 15, 950, 200],
                  [70, 15, 930, 50],
                  [100, 15, 900, -100],
-                 [20, 35, 900, -85],
-                 [35, 15, 475, -35],
+                 [15, 25, 900, -85],    # Mini blockade
+                 [45, 15, 475, -35],
+                 [35, 15, 475, 75],
+                 [20, 125, 510, -35],
+                 [200, 15, 100, 75],
+                 [200, 15, 100, -35],
+                 [20, 100, 280, 75],
+                 [20, 190, 280, -225],
 
-
-
+                 # Walls and floor
                  [1000, 35, 0, 800],
                  [10, 2000, -10, 0],
                  [10, 2000, 1000, 0],
@@ -238,7 +242,6 @@ class Level_01(Level):
             block.rect.y = platform[3]
             block.player = self.player
             self.platform_list.add(block)
-
 
 # Create platforms for the level
 class Level_02(Level):
@@ -329,22 +332,19 @@ def main():
         # Update items in the level
         current_level.update()
 
-        # If the player gets near the right side, shift the world left (-x)
+        # If the player gets near the right side, shift the world up (-y)
         if player.rect.top <= 100:
             diff = player.rect.top - 100
             player.rect.top = 100
             current_level.shift_world(-diff)
 
-        # If the player gets near the left side, shift the world right (+x)
-        # if player.rect.bottom >= 800:
-        #     diff = 800 - player.rect.bottom
-        #     player.rect.bottom = 800
-        #     current_level.shift_world(diff)
-
+        # If the player gets near the bottom, shift the world down (y)
         if player.rect.bottom > SCREEN_HEIGHT:
             diff = 800 - player.rect.bottom
             player.rect.bottom = 800
             current_level.shift_world(diff)
+
+
 
         # If the player gets to the end of the level, go to the next level
         current_position = player.rect.x + current_level.world_shift
