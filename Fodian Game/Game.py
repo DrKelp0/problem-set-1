@@ -351,6 +351,10 @@ def main():
         # Update items in the level
         current_level.update()
 
+        # ----------- DRAW THE ENVIRONMENT
+
+
+
         # If the player gets near the right side, shift the world up (-y)
         if player.rect.top <= 100:
             diff = player.rect.top - 100
