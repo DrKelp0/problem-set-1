@@ -20,6 +20,10 @@ http://programarcadegames.com/python_examples/sprite_sheets/
 """
 
 import pygame
+import time
+import sys
+import textwrap
+import Game_text
 
 # Global constants
 
@@ -153,17 +157,49 @@ class Platform(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect()
 
+
+
+
+class Npc(pygame.sprite.Sprite):
+    """NPC that talks to you when you get near it"""
+
+    def __init__(self):
+        super().__init__()
+
+        # self.image = pygame.Surface([100, 100])
+        # self.image.fill((0, 0, 0))
+        self.image = pygame.image.load("./Npc.png")
+        # Resize the image (scale)
+        self.image = pygame.transform.scale(self.image, (75, 100))
+
+        self.rect = self.image.get_rect()
+        # Define the initial location
+        self.rect.x, self.rect.y = (550, 700)
+
+    def dialogue(self) -> None:
+        """Print the character text"""
+        self.typewriter_effect(Game_text.py.DIALOGUE)
+
+    def typewriter_effect(self, text: str) -> None:
+        """Print out to console with a typewriter effect"""
+        for char in textwrap.dedent(text):
+            time.sleep(0.05)
+            sys.stdout.write(char)
+            sys.stdout.flush()
+
 class Level():
     """ This is a generic super-class used to define a level.
         Create a child class for each level with level-specific
         info. """
 
-    def __init__(self, player):
+    def __init__(self, player, npcs):
         """ Constructor. Pass in a handle to player. Needed for when moving
             platforms collide with the player. """
         self.platform_list = pygame.sprite.Group()
         self.enemy_list = pygame.sprite.Group()
+        self.npc_list = pygame.sprite.Group()
         self.player = player
+        self.npc_list.add(npcs)
 
         # How far this world has been scrolled up/down
         self.world_shift = 0
@@ -173,6 +209,7 @@ class Level():
         """ Update everything in this level."""
         self.platform_list.update()
         self.enemy_list.update()
+        self.npc_list.update()
 
     def draw(self, screen):
         """ Draw everything on this level. """
@@ -183,6 +220,7 @@ class Level():
         # Draw all the sprite lists that we have
         self.platform_list.draw(screen)
         self.enemy_list.draw(screen)
+        self.npc_list.draw(screen)
 
     def shift_world(self, shift_y):
         """ When the user moves up/down and we need to scroll
@@ -198,16 +236,20 @@ class Level():
         for enemy in self.enemy_list:
             enemy.rect.y += shift_y
 
+        for npc in self.npc_list:
+            npc.rect.y += shift_y
+
+
 
 # Create objects for the level
 class Level_01(Level):
     """ Definition for level 1. """
 
-    def __init__(self, player):
+    def __init__(self, player, npcs):
         """ Create level 1. """
 
         # Call the parent constructor
-        Level.__init__(self, player)
+        Level.__init__(self, player, npcs)
 
         self.level_limit = -1000
 
@@ -302,11 +344,16 @@ def main():
 
     # Create the player
     player = Player()
+    npc = Npc()
+
+
+    # Make font
+    font = pygame.font.SysFont("Georgia", 25)
 
     # Create all the levels
     level_list = []
-    level_list.append(Level_01(player))
-    level_list.append(Level_02(player))
+    level_list.append(Level_01(player, npc))
+    # level_list.append(Level_02(player, npc))
 
     # Set the current level
     current_level_no = 0
@@ -324,6 +371,16 @@ def main():
 
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
+
+    # Create groups to hold sprites
+    all_sprites = pygame.sprite.Group()
+    npc_sprites = pygame.sprite.Group()
+
+    # Add the Npc to the enemy_sprites Group
+    # Add the Npc to the all_sprites Group
+    npc = Npc()
+    npc_sprites.add(npc)
+    all_sprites.add(npc)
 
     # -------- Main Program Loop -----------
     while not done:
@@ -351,7 +408,19 @@ def main():
         # Update items in the level
         current_level.update()
 
-        # ----------- DRAW THE ENVIRONMENT
+
+
+
+
+
+        npc_collided = pygame.sprite.spritecollide(player, npc_sprites, False)
+        for npc in npc_collided:
+            screen.blit(
+                font.render("hello welcome", True, BLACK),
+            (600, 600)
+            )
+            # npc.typewriter_effect("")
+
 
 
 
@@ -360,6 +429,8 @@ def main():
             diff = player.rect.top - 100
             player.rect.top = 100
             current_level.shift_world(-diff)
+            # current_level.shift_world(npc_sprites, -diff)
+
 
         # If the player gets near the bottom, shift the world down (y)
         if player.rect.bottom > SCREEN_HEIGHT:
@@ -380,7 +451,10 @@ def main():
 
         # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
         current_level.draw(screen)
+        all_sprites.draw(screen)
         active_sprite_list.draw(screen)
+
+
 
         # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
 
