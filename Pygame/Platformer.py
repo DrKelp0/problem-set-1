@@ -23,7 +23,6 @@ import pygame
 import time
 import sys
 import textwrap
-import Game_text
 
 # Global constants
 
@@ -51,12 +50,11 @@ class Player(pygame.sprite.Sprite):
         # Call the parent's constructor
         super().__init__()
 
-        # Create an image of the block, and fill it with a color.
-        # This could also be an image loaded from the disk.
-        width = 40
-        height = 40
-        self.image = pygame.Surface([width, height])
-        self.image.fill(RED)
+        # Create an image of the player
+        self.image = pygame.image.load("./Player.png")
+        # Resize the image (scale)
+        self.image = pygame.transform.scale(self.image, (40, 40))
+
 
         # Set a reference to the image rect.
         self.rect = self.image.get_rect()
@@ -152,8 +150,12 @@ class Platform(pygame.sprite.Sprite):
             """
         super().__init__()
 
-        self.image = pygame.Surface([width, height])
-        self.image.fill(GREEN)
+
+        self.image = pygame.image.load("./Platform.png")
+        # Resize the image (scale)
+        self.image = pygame.transform.scale(self.image, (width, height))
+
+        # self.image = pygame.Surface([width, height])
 
         self.rect = self.image.get_rect()
 
@@ -174,32 +176,39 @@ class Npc(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect()
         # Define the initial location
-        self.rect.x, self.rect.y = (550, 700)
+        self.rect.x, self.rect.y = (650, 700)
 
-    def dialogue(self) -> None:
-        """Print the character text"""
-        self.typewriter_effect(Game_text.py.DIALOGUE)
+class Npcc(pygame.sprite.Sprite):
+    """NPC that talks to you when you get near it"""
 
-    def typewriter_effect(self, text: str) -> None:
-        """Print out to console with a typewriter effect"""
-        for char in textwrap.dedent(text):
-            time.sleep(0.05)
-            sys.stdout.write(char)
-            sys.stdout.flush()
+    def __init__(self):
+        super().__init__()
+
+        # self.image = pygame.Surface([100, 100])
+        # self.image.fill((0, 0, 0))
+        self.image = pygame.image.load("./Npcc.png")
+        # Resize the image (scale)
+        self.image = pygame.transform.scale(self.image, (75, 75))
+
+        self.rect = self.image.get_rect()
+        # Define the initial location
+        self.rect.x, self.rect.y = (400, 700)
 
 class Level():
     """ This is a generic super-class used to define a level.
         Create a child class for each level with level-specific
         info. """
 
-    def __init__(self, player, npcs):
+    def __init__(self, player, npc, npcc):
         """ Constructor. Pass in a handle to player. Needed for when moving
             platforms collide with the player. """
         self.platform_list = pygame.sprite.Group()
         self.enemy_list = pygame.sprite.Group()
         self.npc_list = pygame.sprite.Group()
         self.player = player
-        self.npc_list.add(npcs)
+        self.npc_list.add(npc)
+        self.npc_list.add(npcc)
+
 
         # How far this world has been scrolled up/down
         self.world_shift = 0
@@ -239,17 +248,20 @@ class Level():
         for npc in self.npc_list:
             npc.rect.y += shift_y
 
+        for npcc in self.npc_list:
+            npcc.rect.y += shift_y
+
 
 
 # Create objects for the level
 class Level_01(Level):
     """ Definition for level 1. """
 
-    def __init__(self, player, npcs):
+    def __init__(self, player, npc, npcc):
         """ Create level 1. """
 
         # Call the parent constructor
-        Level.__init__(self, player, npcs)
+        Level.__init__(self, player, npc, npcc)
 
         self.level_limit = -1000
 
@@ -342,18 +354,15 @@ def main():
 
     pygame.display.set_caption("Fodian-Platformer")
 
-    # Create the player
+    # Create the player and npcs
     player = Player()
     npc = Npc()
+    npcc = Npcc()
 
-
-    # Make font
-    font = pygame.font.SysFont("Georgia", 25)
 
     # Create all the levels
     level_list = []
-    level_list.append(Level_01(player, npc))
-    # level_list.append(Level_02(player, npc))
+    level_list.append(Level_01(player, npc, npcc))
 
     # Set the current level
     current_level_no = 0
@@ -364,6 +373,9 @@ def main():
 
     player.rect.x = 340
     player.rect.y = SCREEN_HEIGHT - player.rect.height
+
+    active_sprite_list.add(npc)
+    active_sprite_list.add(npcc)
     active_sprite_list.add(player)
 
     # Loop until the user clicks the close button.
@@ -378,9 +390,7 @@ def main():
 
     # Add the Npc to the enemy_sprites Group
     # Add the Npc to the all_sprites Group
-    npc = Npc()
     npc_sprites.add(npc)
-    all_sprites.add(npc)
 
     # -------- Main Program Loop -----------
     while not done:
@@ -402,25 +412,34 @@ def main():
                 if event.key == pygame.K_RIGHT and player.change_x > 0:
                     player.stop()
 
-        # Update the player.
+        # Update the player and npcs
         active_sprite_list.update()
 
         # Update items in the level
         current_level.update()
 
-
-
-
-
+        numb_collided = 0
 
         npc_collided = pygame.sprite.spritecollide(player, npc_sprites, False)
         for npc in npc_collided:
-            screen.blit(
-                font.render("hello welcome", True, BLACK),
-            (600, 600)
-            )
-            # npc.typewriter_effect("")
+            if numb_collided == 0:
+                print("What are you doing here?")
+                numb_collided += 1
 
+            elif numb_collided == 1:
+                print("You want to go up?")
+                numb_collided += 1
+
+            elif numb_collided == 2:
+                print("Impossible, you will never reach the top")
+                numb_collided += 1
+
+            elif numb_collided == 3:
+                print("There is nothing for you here")
+                numb_collided += 1
+
+            else:
+                print()
 
 
 
@@ -429,7 +448,6 @@ def main():
             diff = player.rect.top - 100
             player.rect.top = 100
             current_level.shift_world(-diff)
-            # current_level.shift_world(npc_sprites, -diff)
 
 
         # If the player gets near the bottom, shift the world down (y)
@@ -437,7 +455,6 @@ def main():
             diff = 800 - player.rect.bottom
             player.rect.bottom = 800
             current_level.shift_world(diff)
-
 
 
         # If the player gets to the end of the level, go to the next level
@@ -453,7 +470,6 @@ def main():
         current_level.draw(screen)
         all_sprites.draw(screen)
         active_sprite_list.draw(screen)
-
 
 
         # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
