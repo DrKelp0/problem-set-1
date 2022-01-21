@@ -21,8 +21,6 @@ http://programarcadegames.com/python_examples/sprite_sheets/
 
 import pygame
 import time
-import sys
-import textwrap
 
 # Global constants
 
@@ -205,6 +203,8 @@ class Level():
         self.platform_list = pygame.sprite.Group()
         self.enemy_list = pygame.sprite.Group()
         self.npc_list = pygame.sprite.Group()
+        self.player_group = pygame.sprite.Group()
+        self.player_group.add(player)
         self.player = player
         self.npc_list.add(npc)
         self.npc_list.add(npcc)
@@ -224,12 +224,13 @@ class Level():
         """ Draw everything on this level. """
 
         # Draw the background
-        screen.fill(BLUE)
+        # screen.fill(BLUE)
 
         # Draw all the sprite lists that we have
         self.platform_list.draw(screen)
         self.enemy_list.draw(screen)
         self.npc_list.draw(screen)
+        self.player_group.draw(screen)
 
     def shift_world(self, shift_y):
         """ When the user moves up/down and we need to scroll
@@ -385,12 +386,19 @@ def main():
     clock = pygame.time.Clock()
 
     # Create groups to hold sprites
-    all_sprites = pygame.sprite.Group()
+    # all_sprites = pygame.sprite.Group()
     npc_sprites = pygame.sprite.Group()
 
     # Add the Npc to the enemy_sprites Group
     # Add the Npc to the all_sprites Group
     npc_sprites.add(npc)
+
+    numb_collided = 0
+    time_start = time.time()
+    time_cooldown = 4
+
+
+
 
     # -------- Main Program Loop -----------
     while not done:
@@ -418,28 +426,33 @@ def main():
         # Update items in the level
         current_level.update()
 
-        numb_collided = 0
+        print(time_cooldown, time.time() - time_start)
+
 
         npc_collided = pygame.sprite.spritecollide(player, npc_sprites, False)
-        for npc in npc_collided:
-            if numb_collided == 0:
-                print("What are you doing here?")
-                numb_collided += 1
 
-            elif numb_collided == 1:
-                print("You want to go up?")
-                numb_collided += 1
+        if time.time() - time_start < time_cooldown:
+            for npc in npc_collided:
+                False
+        elif time.time() - time_start > time_cooldown:
+            for npc in npc_collided:
+                if numb_collided == 0:
+                    print("What are you doing here?")
+                    numb_collided += 1
+                    time_cooldown += 4
 
-            elif numb_collided == 2:
-                print("Impossible, you will never reach the top")
-                numb_collided += 1
+                elif numb_collided == 1:
+                    print("You want to go up?")
+                    numb_collided += 1
 
-            elif numb_collided == 3:
-                print("There is nothing for you here")
-                numb_collided += 1
+                elif numb_collided == 2:
+                    print("Impossible, you will never reach the top")
+                    numb_collided += 1
 
-            else:
-                print()
+                elif numb_collided == 3:
+                    print("There is nothing for you here")
+                    numb_collided += 1
+
 
 
 
@@ -466,10 +479,18 @@ def main():
                 current_level = level_list[current_level_no]
                 player.level = current_level
 
+        bg_image = pygame.image.load("Wallpaper.jpg")
+        # Transform the size of the bg_image
+        bg_image = pygame.transform.scale(bg_image, (1000, 800))
+        # Draw the background image
+        screen.blit(bg_image, (0, 0))
+
+
+
         # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
         current_level.draw(screen)
-        all_sprites.draw(screen)
-        active_sprite_list.draw(screen)
+        # all_sprites.draw(screen)
+        # active_sprite_list.draw(screen)
 
 
         # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
