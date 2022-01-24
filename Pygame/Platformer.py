@@ -106,10 +106,6 @@ class Player(pygame.sprite.Sprite):
         else:
             self.change_y += .35
 
-        # # See if we are on the ground
-        # if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
-        #     self.change_y = 0
-        #     self.rect.y = SCREEN_HEIGHT - self.rect.height
 
     def jump(self):
         """ Called when user hits 'jump' button. """
@@ -153,11 +149,7 @@ class Platform(pygame.sprite.Sprite):
         # Resize the image (scale)
         self.image = pygame.transform.scale(self.image, (width, height))
 
-        # self.image = pygame.Surface([width, height])
-
         self.rect = self.image.get_rect()
-
-
 
 
 class Npc(pygame.sprite.Sprite):
@@ -166,8 +158,7 @@ class Npc(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
-        # self.image = pygame.Surface([100, 100])
-        # self.image.fill((0, 0, 0))
+
         self.image = pygame.image.load("./Npc.png")
         # Resize the image (scale)
         self.image = pygame.transform.scale(self.image, (75, 100))
@@ -182,15 +173,13 @@ class Npcc(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
-        # self.image = pygame.Surface([100, 100])
-        # self.image.fill((0, 0, 0))
         self.image = pygame.image.load("./Npcc.png")
         # Resize the image (scale)
         self.image = pygame.transform.scale(self.image, (75, 75))
 
         self.rect = self.image.get_rect()
         # Define the initial location
-        self.rect.x, self.rect.y = (400, 700)
+        self.rect.x, self.rect.y = (400, -2250)
 
 class Level():
     """ This is a generic super-class used to define a level.
@@ -223,8 +212,6 @@ class Level():
     def draw(self, screen):
         """ Draw everything on this level. """
 
-        # Draw the background
-        # screen.fill(BLUE)
 
         # Draw all the sprite lists that we have
         self.platform_list.draw(screen)
@@ -273,9 +260,10 @@ class Level_01(Level):
                  [50, 15, 625, 400],
                  [30, 15, 800, 350],
 
-                 [50, 15, 950, 200],
+                 [50, 15, 950, 200],    # Side platforms
                  [70, 15, 930, 50],
                  [100, 15, 900, -100],
+
                  [15, 25, 900, -85],    # Mini blockade
 
                  [45, 15, 475, -35],
@@ -317,32 +305,32 @@ class Level_01(Level):
             block.player = self.player
             self.platform_list.add(block)
 
-# Create platforms for the level
-class Level_02(Level):
-    """ Definition for level 2. """
-
-    def __init__(self, player):
-        """ Create level 1. """
-
-        # Call the parent constructor
-        Level.__init__(self, player)
-
-        self.level_limit = -1000
-
-        # Array with type of platform, and x, y location of the platform.
-        level = [[210, 30, 450, 570],
-                 [210, 30, 850, 420],
-                 [210, 30, 1000, 520],
-                 [210, 30, 1120, 280],
-                 ]
-
-        # Go through the array above and add platforms
-        for platform in level:
-            block = Platform(platform[0], platform[1])
-            block.rect.x = platform[2]
-            block.rect.y = platform[3]
-            block.player = self.player
-            self.platform_list.add(block)
+# # Create platforms for the level
+# class Level_02(Level):
+#     """ Definition for level 2. """
+#
+#     def __init__(self, player):
+#         """ Create level 1. """
+#
+#         # Call the parent constructor
+#         Level.__init__(self, player)
+#
+#         self.level_limit = -1000
+#
+#         # Array with type of platform, and x, y location of the platform.
+#         level = [[210, 30, 450, 570],
+#                  [210, 30, 850, 420],
+#                  [210, 30, 1000, 520],
+#                  [210, 30, 1120, 280],
+#                  ]
+#
+#         # Go through the array above and add platforms
+#         for platform in level:
+#             block = Platform(platform[0], platform[1])
+#             block.rect.x = platform[2]
+#             block.rect.y = platform[3]
+#             block.player = self.player
+#             self.platform_list.add(block)
 
 
 def main():
@@ -375,8 +363,8 @@ def main():
     player.rect.x = 340
     player.rect.y = SCREEN_HEIGHT - player.rect.height
 
-    active_sprite_list.add(npc)
-    active_sprite_list.add(npcc)
+    # active_sprite_list.add(npc)
+    # active_sprite_list.add(npcc)
     active_sprite_list.add(player)
 
     # Loop until the user clicks the close button.
@@ -386,16 +374,19 @@ def main():
     clock = pygame.time.Clock()
 
     # Create groups to hold sprites
-    # all_sprites = pygame.sprite.Group()
     npc_sprites = pygame.sprite.Group()
+    npcc_sprites = pygame.sprite.Group()
+
 
     # Add the Npc to the enemy_sprites Group
     # Add the Npc to the all_sprites Group
     npc_sprites.add(npc)
+    npcc_sprites.add(npcc)
 
     numb_collided = 0
+    numbc_collided = 0
     time_start = time.time()
-    time_cooldown = 4
+    time_cooldown = 1
 
 
 
@@ -426,10 +417,9 @@ def main():
         # Update items in the level
         current_level.update()
 
-        print(time_cooldown, time.time() - time_start)
-
-
         npc_collided = pygame.sprite.spritecollide(player, npc_sprites, False)
+        npcc_collided = pygame.sprite.spritecollide(player, npcc_sprites, False)
+
 
         if time.time() - time_start < time_cooldown:
             for npc in npc_collided:
@@ -439,21 +429,42 @@ def main():
                 if numb_collided == 0:
                     print("What are you doing here?")
                     numb_collided += 1
-                    time_cooldown += 4
+                    time_cooldown += 3
 
                 elif numb_collided == 1:
                     print("You want to go up?")
                     numb_collided += 1
+                    time_cooldown += 3
+
 
                 elif numb_collided == 2:
                     print("Impossible, you will never reach the top")
                     numb_collided += 1
+                    time_cooldown += 3
+
 
                 elif numb_collided == 3:
                     print("There is nothing for you here")
                     numb_collided += 1
+                    time_cooldown += 10
 
 
+                elif numb_collided == 4:
+                    print("Back again?\n"
+                          "Looks like it's about time to give up")
+                    numb_collided += 1
+                    time_cooldown += 3
+
+        if time.time() - time_start < time_cooldown:
+
+            for npcc in npcc_collided:
+                False
+        elif time.time() - time_start > time_cooldown:
+            for npcc in npcc_collided:
+                if numbc_collided == 0:
+                    print("hello")
+                    numbc_collided += 1
+                    time_cooldown += 3
 
 
         # If the player gets near the right side, shift the world up (-y)
